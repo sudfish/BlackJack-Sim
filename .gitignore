@@ -1,3 +1,8 @@
+# Project specific
+run.sh
+build/
+.cache/
+
 # Prerequisites
 *.d
 
