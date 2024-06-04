@@ -1,25 +1,101 @@
 #include "Participant.hpp"
+#include "Global.hpp"
+#include <sstream>
+#include <string>
 #include <vector>
 
 namespace blackjack_sim {
     // ===== HAND =====
     Hand::Hand(){};
 
-    void Hand::ReceiveCard(Card &card){
+    void Hand::AddCard(Card &card){
         this->cards.push_back(card);
         this->CalculatePoints();
     }
 
-    bool Hand::HasBust(){
-        return this->points.first > 21 && this->points.second > 21;
+    std::vector<Card> Hand::ClearHand(){
+        std::vector<Card> vec = this->cards;
+        this->cards.clear();
+        this->CalculatePoints();
+        return vec;
     }
 
     std::vector<Card> Hand::GetCards(){
         return this->cards;
     }
 
+    std::string Hand::GetHandString(){
+        std::stringstream ss;
+        if(this->IsPair()){
+            Card card = this->cards.at(0);
+            if(card.rank == "A") ss << "A,A";
+            else if (
+                    card.rank == "K" ||
+                    card.rank == "Q" ||
+                    card.rank == "J"
+                    ){
+                ss << "HARD 20";
+            }
+            else ss << card.rank << "," << card.rank;
+            
+            if(ss.str() == "5,5"){
+                ss.str("");
+                ss.clear();
+                ss << "HARD 10";
+            }
+        } else if (!this->HasAces() && this->GetHardPoints() <= 21){
+            ss << "HARD " << this->GetHardPoints();
+        } else if (!this->HasBust()) {
+            if(this->GetSoftPoints() <= 21) ss << "SOFT " << this->GetSoftPoints();
+            else ss << "HARD " << this->GetHardPoints();
+        } else {
+            ss << "BUST";
+        }
+
+        return ss.str();
+    }
+
+    bool Hand::HasBust(){
+        if(!this->HasAces()) return this->GetHardPoints() > 21;
+        return this->GetHardPoints() > 21 && this->GetSoftPoints() > 21;
+    }
+
+    int Hand::GetSoftPoints(){
+        return this->points.first;
+    }
+
+    int Hand::GetHardPoints(){
+        return this->points.second;
+    }
+
+    bool Hand::IsPair(){
+        if( this->cards.size() == 2 && (
+            this->cards.at(0).rank == this->cards.at(1).rank
+            ||
+            RANK_TO_NUMBER.at(this->cards.at(0).rank) == 
+            RANK_TO_NUMBER.at(this->cards.at(1).rank))
+            ){
+            return true;
+        }
+        return false;
+    }
+
+    Card Hand::Split(){
+        Card card = this->cards.front();
+        this->cards.erase(this->cards.begin());
+        this->CalculatePoints();
+        return card;
+    }
+
+    bool Hand::HasAces(){
+        for(const auto& card : this->cards){
+            if(card.rank == "A") return true;
+        }
+        return false;
+    }
+
     void Hand::CalculatePoints(){
-        this->CalculateSoftPoints();
+        if(this->HasAces()) this->CalculateSoftPoints();
         this->CalculateHardPoints();
     }
 
@@ -45,7 +121,43 @@ namespace blackjack_sim {
     }
 
     // ===== PARTICIPANT =====
-    Participant::Participant(){};
+    Participant::Participant(){}
+
+    void Participant::CreateHand(Card &first, Card &second){
+        Hand hand;
+        hand.AddCard(first); hand.AddCard(second);
+        this->hands.push_back(hand);
+    }
+
+    std::vector<Hand> Participant::GetHands(){
+        return this->hands;
+    }
+
+    void Participant::ClearHands(){
+        for(Hand hand : this->hands){
+            hand.ClearHand();
+        }
+    }
+
+    // ===== PLAYER =====
+    Player::Player(){}
+
+    bool Player::HasBust(){
+        for(Hand hand : this->hands){
+            if(!hand.HasBust()) return false;
+        }
+        return true;
+    }
 
 
+    // ===== DEALER =====
+    Dealer::Dealer(){}
+
+    Card Dealer::GetFirstCard(){
+        return this->hands.front().GetCards().front();
+    }
+
+    bool Dealer::HasBust() {
+        return this->hands.front().HasBust(); 
+    }
 }

@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Deck.hpp"
+#include "Participant.hpp"
+
 namespace blackjack_sim {
     class Simulation{
         public:
@@ -7,6 +10,9 @@ namespace blackjack_sim {
 
             void Run();
         private:
+            Deck deck;
+            Player player;
+            Dealer dealer;
 
             void DealCards();
             void HandlePlayerTurn();

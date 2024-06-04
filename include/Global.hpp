@@ -27,7 +27,8 @@ const std::map<std::string, int> RANK_TO_NUMBER = {
     {"10", 10}, 
     {"J", 10}, 
     {"Q", 10}, 
-    {"K", 10} 
+    {"K", 10},
+    {"A", 1}
 };
 
 struct Card{

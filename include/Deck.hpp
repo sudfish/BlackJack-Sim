@@ -4,15 +4,19 @@
 #include <vector>
 
 namespace blackjack_sim {
+
     class Deck {
         public:
             Deck();
 
-            void Shuffle();
-            int GetSize();
+            Card DrawCard();
             std::vector<Card> GetCards();
+            void PutCards(std::vector<Card> cards);
 
         private:
             std::vector<Card> cards;
+
+            void Initialize();
+            void Shuffle();
     };
 }

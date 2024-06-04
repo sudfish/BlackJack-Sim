@@ -13,9 +13,9 @@
  * Ended: 
 */
 
-#include <iostream>
+#include "Simulation.hpp"
 
 int main (int argc, char *argv[]) {
-    std::cout << "Hello World!\n"; 
-    return 0;
+    blackjack_sim::Simulation simulation;
+    simulation.Run();
 }
