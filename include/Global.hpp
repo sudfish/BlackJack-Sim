@@ -33,8 +33,10 @@ const std::map<std::string, int> RANK_TO_NUMBER = {
 };
 
 
+const bool DOUBLE_ALLOWED = false;
+const bool SPLIT_AFTER_DOUBLE_ALLOWED = false;
+const bool SURRENDER_ALLOWED = false;
 
-// For 4-8 decks
 const std::map<std::pair<std::string, std::string>, std::string> DEALER_STANDS_ON_SOFT_17 = {
     {std::make_pair("HARD 4", "2"), "H"},
     {std::make_pair("HARD 4", "3"), "H"},

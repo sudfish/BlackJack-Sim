@@ -30,6 +30,7 @@ namespace blackjack_sim {
             Card card = this->cards.at(0);
             if(card.rank == "A") ss << "A,A";
             else if (
+                    card.rank == "10" ||
                     card.rank == "K" ||
                     card.rank == "Q" ||
                     card.rank == "J"
@@ -146,6 +147,17 @@ namespace blackjack_sim {
 
     Card Dealer::GetFirstCard(){
         return this->hands.front().GetCards().front();
+    }
+
+    std::string Dealer::GetFirstCardString(){
+        std::stringstream ss;
+        Card card = this->GetFirstCard();
+        if(card.rank != "A"){
+            ss << RANK_TO_NUMBER.at(card.rank);
+        } else {
+            ss << "A";
+        }
+        return ss.str();
     }
 
     bool Dealer::HasBust() {

@@ -1,5 +1,8 @@
 #include "Simulation.hpp"
+#include "Global.hpp"
 #include <iostream>
+#include <string>
+#include <utility>
 
 namespace blackjack_sim {
     Simulation::Simulation(){}
@@ -21,10 +24,13 @@ namespace blackjack_sim {
 
     void Simulation::HandlePlayerTurn(){
         Card dealer_card = this->dealer.GetFirstCard();
-        std::cout << "Dealer Card: " << dealer_card.name << "\n";
+        std::string dealer_card_value = this->dealer.GetFirstCardString();
 
         for (int i=0; i<this->player.GetHands().size(); i++) {
-            std::cout << this->player.GetHands().at(i).GetHandString() << "\n"; 
+            std::string hand_string = this->player.GetHands().at(i).GetHandString();
+            std::string move = DEALER_STANDS_ON_SOFT_17.at(
+                std::make_pair(hand_string, dealer_card_value)
+            );
         } 
     }
 
