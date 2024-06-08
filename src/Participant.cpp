@@ -8,7 +8,7 @@ namespace blackjack_sim {
     // ===== HAND =====
     Hand::Hand(){};
 
-    void Hand::AddCard(Card &card){
+    void Hand::AddCard(Card card){
         this->cards.push_back(card);
         this->CalculatePoints();
     }
@@ -80,13 +80,6 @@ namespace blackjack_sim {
         return false;
     }
 
-    Card Hand::Split(){
-        Card card = this->cards.front();
-        this->cards.erase(this->cards.begin());
-        this->CalculatePoints();
-        return card;
-    }
-
     bool Hand::HasAces(){
         for(const auto& card : this->cards){
             if(card.rank == "A") return true;
@@ -123,9 +116,7 @@ namespace blackjack_sim {
     // ===== PARTICIPANT =====
     Participant::Participant(){}
 
-    void Participant::CreateHand(Card &first, Card &second){
-        Hand hand;
-        hand.AddCard(first); hand.AddCard(second);
+    void Participant::AddHand(Hand hand){
         this->hands.push_back(hand);
     }
 
