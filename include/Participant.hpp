@@ -14,6 +14,7 @@ namespace blackjack_sim {
             std::vector<Card> ClearHand();
             std::vector<Card> GetCards();
             std::string GetHandString();
+            Card Split();
             int GetSoftPoints();
             int GetHardPoints();
             bool HasBust();
@@ -34,6 +35,7 @@ namespace blackjack_sim {
             Participant();
 
             void AddHand(Hand hand);
+            void AddCardToHand(int hand_index, Card card);
             virtual bool HasBust() = 0;
             std::vector<Hand> GetHands();
             void ClearHands();
@@ -47,6 +49,7 @@ namespace blackjack_sim {
             Player();
 
             bool HasBust() override;
+            void SplitHand(int hand_index);
         private:
 
     };

@@ -32,12 +32,41 @@ const std::map<std::string, int> RANK_TO_NUMBER = {
     {"A", 1}
 };
 
-
 const bool DOUBLE_ALLOWED = false;
-const bool SPLIT_AFTER_DOUBLE_ALLOWED = false;
+const bool DOUBLE_AFTER_SPLIT_ALLOWED = false;
 const bool SURRENDER_ALLOWED = false;
 
+const std::map<std::string, int> MOVE_TO_NUMBER = {
+    {"H", 1},
+    {"S", 2},
+    {"P", 3},
+    {"Dh", DOUBLE_ALLOWED ? 4 : 1},
+    {"Rh", SURRENDER_ALLOWED ? 5 : 1},
+    {"Ds", DOUBLE_ALLOWED ? 4 : 2},
+    {"Ph", DOUBLE_AFTER_SPLIT_ALLOWED ? 3 : 1}
+};
+
 const std::map<std::pair<std::string, std::string>, std::string> DEALER_STANDS_ON_SOFT_17 = {
+    {std::make_pair("HARD 2", "2"), "H"},
+    {std::make_pair("HARD 2", "3"), "H"},
+    {std::make_pair("HARD 2", "4"), "H"},
+    {std::make_pair("HARD 2", "5"), "H"},
+    {std::make_pair("HARD 2", "6"), "H"},
+    {std::make_pair("HARD 2", "7"), "H"},
+    {std::make_pair("HARD 2", "8"), "H"},
+    {std::make_pair("HARD 2", "9"), "H"},
+    {std::make_pair("HARD 2", "10"), "H"},
+    {std::make_pair("HARD 2", "A"), "H"},
+    {std::make_pair("HARD 3", "2"), "H"},
+    {std::make_pair("HARD 3", "3"), "H"},
+    {std::make_pair("HARD 3", "4"), "H"},
+    {std::make_pair("HARD 3", "5"), "H"},
+    {std::make_pair("HARD 3", "6"), "H"},
+    {std::make_pair("HARD 3", "7"), "H"},
+    {std::make_pair("HARD 3", "8"), "H"},
+    {std::make_pair("HARD 3", "9"), "H"},
+    {std::make_pair("HARD 3", "10"), "H"},
+    {std::make_pair("HARD 3", "A"), "H"},
     {std::make_pair("HARD 4", "2"), "H"},
     {std::make_pair("HARD 4", "3"), "H"},
     {std::make_pair("HARD 4", "4"), "H"},
@@ -208,9 +237,29 @@ const std::map<std::pair<std::string, std::string>, std::string> DEALER_STANDS_O
     {std::make_pair("HARD 20", "9"), "S"},
     {std::make_pair("HARD 20", "10"), "S"},
     {std::make_pair("HARD 20", "A"), "S"},
+    {std::make_pair("HARD 21", "2"), "S"},
+    {std::make_pair("HARD 21", "3"), "S"},
+    {std::make_pair("HARD 21", "4"), "S"},
+    {std::make_pair("HARD 21", "5"), "S"},
+    {std::make_pair("HARD 21", "6"), "S"},
+    {std::make_pair("HARD 21", "7"), "S"},
+    {std::make_pair("HARD 21", "8"), "S"},
+    {std::make_pair("HARD 21", "9"), "S"},
+    {std::make_pair("HARD 21", "10"), "S"},
+    {std::make_pair("HARD 21", "A"), "S"},
 
     // Soft values
-    {std::make_pair("SOFT 13", "2"), "H"},
+    {std::make_pair("SOFT 11", "2"), "H"},
+    {std::make_pair("SOFT 11", "3"), "H"},
+    {std::make_pair("SOFT 11", "4"), "H"},
+    {std::make_pair("SOFT 11", "5"), "H"},
+    {std::make_pair("SOFT 11", "6"), "H"},
+    {std::make_pair("SOFT 11", "7"), "H"},
+    {std::make_pair("SOFT 11", "8"), "H"},
+    {std::make_pair("SOFT 11", "9"), "H"},
+    {std::make_pair("SOFT 11", "10"), "H"},
+    {std::make_pair("SOFT 11", "A"), "H"},
+
     {std::make_pair("SOFT 13", "3"), "H"},
     {std::make_pair("SOFT 13", "4"), "H"},
     {std::make_pair("SOFT 13", "5"), "Dh"},
@@ -318,10 +367,11 @@ const std::map<std::pair<std::string, std::string>, std::string> DEALER_STANDS_O
     {std::make_pair("3,3", "5"), "P"},
     {std::make_pair("3,3", "6"), "P"},
     {std::make_pair("3,3", "7"), "P"},
-    {std::make_pair("3,3", "8"), "P"},
-    {std::make_pair("3,3", "9"), "P"},
-    {std::make_pair("3,3", "10"), "P"},
-    {std::make_pair("3,3", "A"), "P"},
+    {std::make_pair("3,3", "8"), "H"},
+    {std::make_pair("3,3", "9"), "H"},
+    {std::make_pair("3,3", "10"), "H"},
+    {std::make_pair("3,3", "A"), "H"},
+
     {std::make_pair("4,4", "2"), "H"},
     {std::make_pair("4,4", "3"), "H"},
     {std::make_pair("4,4", "4"), "H"},
@@ -332,6 +382,7 @@ const std::map<std::pair<std::string, std::string>, std::string> DEALER_STANDS_O
     {std::make_pair("4,4", "9"), "H"},
     {std::make_pair("4,4", "10"), "H"},
     {std::make_pair("4,4", "A"), "H"},
+
     {std::make_pair("6,6", "2"), "Ph"},
     {std::make_pair("6,6", "3"), "P"},
     {std::make_pair("6,6", "4"), "P"},
@@ -342,6 +393,7 @@ const std::map<std::pair<std::string, std::string>, std::string> DEALER_STANDS_O
     {std::make_pair("6,6", "9"), "H"},
     {std::make_pair("6,6", "10"), "H"},
     {std::make_pair("6,6", "A"), "H"},
+
     {std::make_pair("7,7", "2"), "P"},
     {std::make_pair("7,7", "3"), "P"},
     {std::make_pair("7,7", "4"), "P"},
@@ -362,6 +414,7 @@ const std::map<std::pair<std::string, std::string>, std::string> DEALER_STANDS_O
     {std::make_pair("8,8", "9"), "P"},
     {std::make_pair("8,8", "10"), "P"},
     {std::make_pair("8,8", "A"), "P"},
+
     {std::make_pair("9,9", "2"), "P"},
     {std::make_pair("9,9", "3"), "P"},
     {std::make_pair("9,9", "4"), "P"},
@@ -372,6 +425,7 @@ const std::map<std::pair<std::string, std::string>, std::string> DEALER_STANDS_O
     {std::make_pair("9,9", "9"), "P"},
     {std::make_pair("9,9", "10"), "S"},
     {std::make_pair("9,9", "A"), "S"},
+
     {std::make_pair("A,A", "2"), "P"},
     {std::make_pair("A,A", "3"), "P"},
     {std::make_pair("A,A", "4"), "P"},

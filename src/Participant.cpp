@@ -56,6 +56,13 @@ namespace blackjack_sim {
         return ss.str();
     }
 
+    Card Hand::Split(){
+        Card card = this->cards.at(1);
+        this->cards.erase(this->cards.end());
+        this->CalculatePoints();
+        return card;
+    }
+
     bool Hand::HasBust(){
         if(!this->HasAces()) return this->GetHardPoints() > 21;
         return this->GetHardPoints() > 21 && this->GetSoftPoints() > 21;
@@ -121,6 +128,10 @@ namespace blackjack_sim {
         this->hands.push_back(hand);
     }
 
+    void Participant::AddCardToHand(int hand_index, Card card){
+        this->hands.at(hand_index).AddCard(card);
+    }
+
     std::vector<Hand> Participant::GetHands(){
         return this->hands;
     }
@@ -141,6 +152,11 @@ namespace blackjack_sim {
         return true;
     }
 
+    void Player::SplitHand(int hand_index){
+        Card card = this->hands.at(hand_index).Split();
+        Hand hand; hand.AddCard(card);
+        this->AddHand(hand);
+    }
 
     // ===== DEALER =====
     Dealer::Dealer(){}
