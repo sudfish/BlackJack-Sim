@@ -176,6 +176,13 @@ namespace blackjack_sim {
         return ss.str();
     }
 
+    int Dealer::GetPoints(){
+        int soft = this->hands.at(0).GetSoftPoints();
+        int hard = this->hands.at(0).GetHardPoints();
+        if(soft > hard) return soft;
+        return hard;
+    }
+
     bool Dealer::HasBust() {
         return this->hands.front().HasBust(); 
     }

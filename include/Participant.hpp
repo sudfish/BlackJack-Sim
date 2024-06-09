@@ -59,6 +59,7 @@ namespace blackjack_sim {
             Dealer();
 
             bool HasBust() override;
+            int GetPoints();
             Card GetFirstCard();
             std::string GetFirstCardString();
 
