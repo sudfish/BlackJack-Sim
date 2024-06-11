@@ -69,12 +69,13 @@ namespace blackjack_sim {
 
     std::vector<Card> Player::Clear(){
         std::vector<Card> cards;
-        for(Hand hand : this->hands){
+        for(Hand &hand : this->hands){
             std::vector<Card> temp = hand.ClearHand();
             for(Card card : temp){
                 cards.push_back(card);
             }
         }
+        this->hands.clear();
         return cards;
     }
 
@@ -109,6 +110,8 @@ namespace blackjack_sim {
     }
 
     std::vector<Card> Dealer::Clear(){
-        return this->hands.at(0).ClearHand();
+        std::vector<Card> vec = this->hands.at(0).ClearHand();
+        this->hands.clear();
+        return vec;
     }
 }

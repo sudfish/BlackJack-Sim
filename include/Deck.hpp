@@ -12,11 +12,11 @@ namespace blackjack_sim {
             Card DrawCard();
             std::vector<Card> GetCards();
             void PutCards(std::vector<Card> cards);
+            void Shuffle();
 
         private:
             std::vector<Card> cards;
 
             void Initialize();
-            void Shuffle();
     };
 }

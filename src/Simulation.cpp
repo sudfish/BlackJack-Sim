@@ -1,21 +1,35 @@
 #include "Simulation.hpp"
 #include "Global.hpp"
 #include "Participant.hpp"
+#include <algorithm>
+#include <chrono>
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <thread>
 #include <utility>
+#include <vector>
 
 namespace blackjack_sim {
     Simulation::Simulation(){}
 
     void Simulation::Run(){
         system("clear");
-        this->DealCards();
-        this->HandlePlayerTurn();
-        this->HandleDealerTurn();
-        this->DetermineWinner();
+        while(true){
+            this->game_count++;
+            if(this->deck.GetCards().size() < 26){
+                this->deck.PutCards(this->bin);
+                this->bin.clear();
+                this->deck.Shuffle();
+            }
+            this->DealCards();
+            this->HandlePlayerTurn();
+            this->HandleDealerTurn();
+            this->DetermineWinner();
+            this->Reset();
+            // std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        }
     }
 
     void Simulation::DealCards(){
@@ -29,17 +43,12 @@ namespace blackjack_sim {
 
     void Simulation::HandlePlayerTurn(){
         std::string dealer_first = this->dealer.GetFirstCardString();
-        std::cout << "Dealer First Card Value: " << dealer_first << "\n";
         for (int i=0; i<this->player.GetHands().size(); i++) {
-            std::cout << "\t" << "Hand #" << i << "\n";
+            this->player_hands++;
             while(!this->player.HasBust(i)){
                 std::string hand_string = this->player.GetHandString(i);
                 std::string instruction = DEALER_STANDS_ON_SOFT_17.at(std::make_pair(hand_string, dealer_first));
                 int choice = INSTRUCTION_TO_NUMBER.at(instruction);
-                std::cout << "Hand String: " << hand_string << "\t" 
-                    << "Instruction: " << instruction << "\t" 
-                    << "Choice: " << choice << "\t"
-                    << "Hand: " << this->PrintHand(this->player.GetHands().at(i)) << "\n";
 
                 switch (choice) {
                     case 1:     // Hit
@@ -58,9 +67,6 @@ namespace blackjack_sim {
 
                 if(choice == 2) break;
             }
-            std::cout << "\tFINAL HAND\n"
-                << "Hand String: " << this->player.GetHandString(i) << "\t"
-                << "Hand: " << this->PrintHand(this->player.GetHands().at(i)) << "\n";
         }
     }
 
@@ -71,12 +77,45 @@ namespace blackjack_sim {
     }
 
     void Simulation::DetermineWinner(){
-        if(this->dealer.HasBust()) {
-            std::cout << "Dealer busted. Player wins.\n";
-            return;
+        int dealer_soft = this->dealer.GetHands().at(0).GetSoftPoints();
+        int dealer_hard = this->dealer.GetHands().at(0).GetHardPoints();
+        dealer_soft = dealer_soft > 21 ? 0 : dealer_soft;
+        int dealer_points = std::max(dealer_soft, dealer_hard);
+        bool dealer_busted = this->dealer.HasBust();
+        for(int i=0; i<this->player.GetHands().size(); i++){
+            if (this->player.HasBust(i)) {
+                this->loss_count++;
+            } else if (dealer_busted){
+                this->win_count++;
+            } else {
+                int player_soft = this->player.GetHands().at(i).GetSoftPoints();
+                int player_hard = this->player.GetHands().at(i).GetHardPoints();
+                player_soft = player_soft > 21 ? 0 : player_soft;
+                int player_points = std::max(player_soft, player_hard);
+
+                if(player_points > dealer_points){
+                    this->win_count++;
+                } 
+                else if(dealer_points > player_points){
+                    this->loss_count++;
+                } 
+                else{
+                    this->push_count++;
+                } 
+            }
         }
+        std::cout << "Games: " << this->game_count 
+            << "\tPlayer Hands: " << this->player_hands
+            << "\tWon: " << this->win_count 
+            << "\tLost: " << this->loss_count 
+            << "\tPush: " << this->push_count << "\n";
+    }
 
-
+    void Simulation::Reset(){
+        std::vector<Card> player_cards = this->player.Clear();
+        std::vector<Card> dealer_cards = this->dealer.Clear();
+        this->bin.insert(this->bin.end(), player_cards.begin(), player_cards.end());
+        this->bin.insert(this->bin.end(), dealer_cards.begin(), dealer_cards.end());
     }
 
     std::string Simulation::PrintHand(Hand hand){

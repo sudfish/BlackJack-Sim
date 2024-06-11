@@ -5,7 +5,10 @@
 #include <utility>
 #include <vector>
 
-const int NUMBER_OF_DECKS = 1;
+const int NUMBER_OF_DECKS = 6;
+const bool DOUBLE_ALLOWED = false;
+const bool DOUBLE_AFTER_SPLIT_ALLOWED = false;
+const bool SURRENDER_ALLOWED = false;
 
 const std::vector<std::string> SUITS = {
     "Hearts", "Diamonds", "Clubs", "Spades"
@@ -32,9 +35,6 @@ const std::map<std::string, int> RANK_TO_NUMBER = {
     {"A", 1}
 };
 
-const bool DOUBLE_ALLOWED = false;
-const bool DOUBLE_AFTER_SPLIT_ALLOWED = false;
-const bool SURRENDER_ALLOWED = false;
 
 const std::map<std::string, int> INSTRUCTION_TO_NUMBER = {
     {"H", 1},

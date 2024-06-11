@@ -49,7 +49,8 @@ namespace blackjack_sim {
     std::vector<Card> Hand::ClearHand(){
         std::vector<Card> vec = this->cards;
         this->cards.clear();
-        this->CalculatePoints();
+        this->points.first = 0;
+        this->points.second = 0;
         return vec;
     }
 
