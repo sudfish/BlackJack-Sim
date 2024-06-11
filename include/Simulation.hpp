@@ -19,6 +19,6 @@ namespace blackjack_sim {
             void HandleDealerTurn();
             void DetermineWinner();
 
-            void PrintHand(Hand hand);
+            std::string PrintHand(Hand hand);
     };
 }

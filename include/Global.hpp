@@ -36,7 +36,7 @@ const bool DOUBLE_ALLOWED = false;
 const bool DOUBLE_AFTER_SPLIT_ALLOWED = false;
 const bool SURRENDER_ALLOWED = false;
 
-const std::map<std::string, int> MOVE_TO_NUMBER = {
+const std::map<std::string, int> INSTRUCTION_TO_NUMBER = {
     {"H", 1},
     {"S", 2},
     {"P", 3},
@@ -260,6 +260,7 @@ const std::map<std::pair<std::string, std::string>, std::string> DEALER_STANDS_O
     {std::make_pair("SOFT 11", "10"), "H"},
     {std::make_pair("SOFT 11", "A"), "H"},
 
+    {std::make_pair("SOFT 13", "2"), "H"},
     {std::make_pair("SOFT 13", "3"), "H"},
     {std::make_pair("SOFT 13", "4"), "H"},
     {std::make_pair("SOFT 13", "5"), "Dh"},

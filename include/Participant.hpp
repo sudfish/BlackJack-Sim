@@ -1,44 +1,18 @@
 #pragma once
 
 #include "Global.hpp"
+#include "Hand.hpp"
 #include <string>
-#include <utility>
 #include <vector>
 
 namespace blackjack_sim {
-    class Hand{
-        public:
-            Hand();
-
-            void AddCard(Card card);
-            std::vector<Card> ClearHand();
-            std::vector<Card> GetCards();
-            std::string GetHandString();
-            Card Split();
-            int GetSoftPoints();
-            int GetHardPoints();
-            bool HasBust();
-            bool IsPair();
-
-        private:
-            std::vector<Card> cards;
-            std::pair<int, int> points = std::make_pair(0, 0);
-
-            bool HasAces();
-            void CalculatePoints();
-            void CalculateSoftPoints();
-            void CalculateHardPoints();
-    };
-
     class Participant {
         public:
             Participant();
 
-            void AddHand(Hand hand);
-            void AddCardToHand(int hand_index, Card card);
-            virtual bool HasBust() = 0;
+            void CreateHand(Card first, Card second);
             std::vector<Hand> GetHands();
-            void ClearHands();
+            virtual std::vector<Card> Clear() = 0;
 
         protected:
             std::vector<Hand> hands;
@@ -48,8 +22,12 @@ namespace blackjack_sim {
         public:
             Player();
 
-            bool HasBust() override;
-            void SplitHand(int hand_index);
+            void AddCard(int index, Card card);
+            void Split(int index);
+            bool HasBust(int index);
+            std::string GetHandString(int index);
+            std::vector<Card> Clear() override;
+
         private:
 
     };
@@ -58,10 +36,12 @@ namespace blackjack_sim {
         public:
             Dealer();
 
-            bool HasBust() override;
-            int GetPoints();
+            void AddCard(Card card);
             Card GetFirstCard();
             std::string GetFirstCardString();
+            bool HasReached17();
+            bool HasBust();
+            std::vector<Card> Clear() override;
 
         private:
 

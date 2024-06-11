@@ -5,29 +5,42 @@
 #include <vector>
 
 namespace blackjack_sim {
-    // ===== HAND =====
-    Hand::Hand(){};
-
-    void Hand::AddCard(Card card){
-        this->cards.push_back(card);
-        this->CalculatePoints();
+    Participant::Participant(){}
+    
+    void Participant::CreateHand(Card first, Card second){
+        Hand hand; hand.AddCard(first); hand.AddCard(second);
+        this->hands.push_back(hand);
     }
 
-    std::vector<Card> Hand::ClearHand(){
-        std::vector<Card> vec = this->cards;
-        this->cards.clear();
-        this->CalculatePoints();
-        return vec;
+    std::vector<Hand> Participant::GetHands(){
+        return this->hands;
     }
 
-    std::vector<Card> Hand::GetCards(){
-        return this->cards;
+    // ===== Player =====
+    Player::Player(){}
+
+    void Player::AddCard(int index, Card card){
+        this->hands.at(index).AddCard(card);
     }
 
-    std::string Hand::GetHandString(){
+    void Player::Split(int index){ 
+        if(this->hands.at(index).IsPair()){
+            Card card = this->hands.at(index).RemoveCard(1);
+            Hand new_hand; new_hand.AddCard(card);
+            this->hands.push_back(new_hand);
+        }
+    }
+
+    bool Player::HasBust(int index){
+        Hand hand = this->hands.at(index);
+        return hand.GetHardPoints() > 21;
+    }
+
+    std::string Player::GetHandString(int index){
+        Hand hand = this->hands.at(index); 
         std::stringstream ss;
-        if(this->IsPair()){
-            Card card = this->cards.at(0);
+        if(hand.IsPair()){
+            Card card = hand.GetCards().at(0);
             if(card.rank == "A") ss << "A,A";
             else if (
                     card.rank == "10" ||
@@ -44,146 +57,58 @@ namespace blackjack_sim {
                 ss.clear();
                 ss << "HARD 10";
             }
-        } else if (!this->HasAces() && this->GetHardPoints() <= 21){
-            ss << "HARD " << this->GetHardPoints();
-        } else if (!this->HasBust()) {
-            if(this->GetSoftPoints() <= 21) ss << "SOFT " << this->GetSoftPoints();
-            else ss << "HARD " << this->GetHardPoints();
-        } else {
-            ss << "BUST";
-        }
+        } else if (!hand.HasAces() && hand.GetHardPoints() <= 21){
+            ss << "HARD " << hand.GetHardPoints();
+        } else if (hand.GetSoftPoints() <= 21 || hand.GetHardPoints() <= 21) {
+            if(hand.GetSoftPoints() <= 21) ss << "SOFT " << hand.GetSoftPoints();
+            else ss << "HARD " << hand.GetHardPoints();
+        } 
 
         return ss.str();
     }
 
-    Card Hand::Split(){
-        Card card = this->cards.at(1);
-        this->cards.erase(this->cards.end());
-        this->CalculatePoints();
-        return card;
-    }
-
-    bool Hand::HasBust(){
-        if(!this->HasAces()) return this->GetHardPoints() > 21;
-        return this->GetHardPoints() > 21 && this->GetSoftPoints() > 21;
-    }
-
-    int Hand::GetSoftPoints(){
-        return this->points.first;
-    }
-
-    int Hand::GetHardPoints(){
-        return this->points.second;
-    }
-
-    bool Hand::IsPair(){
-        if( this->cards.size() == 2 && (
-            this->cards.at(0).rank == this->cards.at(1).rank
-            ||
-            RANK_TO_NUMBER.at(this->cards.at(0).rank) == 
-            RANK_TO_NUMBER.at(this->cards.at(1).rank))
-            ){
-            return true;
-        }
-        return false;
-    }
-
-    bool Hand::HasAces(){
-        for(const auto& card : this->cards){
-            if(card.rank == "A") return true;
-        }
-        return false;
-    }
-
-    void Hand::CalculatePoints(){
-        if(this->HasAces()) this->CalculateSoftPoints();
-        this->CalculateHardPoints();
-    }
-
-    void Hand::CalculateSoftPoints(){
-        int soft_points = 0; int aces = 0;
-        for(const auto& card : this->cards){
-            if(card.rank == "A") {soft_points++; aces++;}
-            else soft_points += RANK_TO_NUMBER.at(card.rank);
-        }
-
-        if(aces > 0) soft_points += 10;
-        this->points.first = soft_points;
-    }
-
-    void Hand::CalculateHardPoints(){
-        int hard_points = 0;
-        for(const auto& card : this->cards){
-            if(card.rank == "A") hard_points++;
-            else hard_points += RANK_TO_NUMBER.at(card.rank);
-        }
-
-        this->points.second = hard_points;
-    }
-
-    // ===== PARTICIPANT =====
-    Participant::Participant(){}
-
-    void Participant::AddHand(Hand hand){
-        this->hands.push_back(hand);
-    }
-
-    void Participant::AddCardToHand(int hand_index, Card card){
-        this->hands.at(hand_index).AddCard(card);
-    }
-
-    std::vector<Hand> Participant::GetHands(){
-        return this->hands;
-    }
-
-    void Participant::ClearHands(){
+    std::vector<Card> Player::Clear(){
+        std::vector<Card> cards;
         for(Hand hand : this->hands){
-            hand.ClearHand();
+            std::vector<Card> temp = hand.ClearHand();
+            for(Card card : temp){
+                cards.push_back(card);
+            }
         }
+        return cards;
     }
 
-    // ===== PLAYER =====
-    Player::Player(){}
-
-    bool Player::HasBust(){
-        for(Hand hand : this->hands){
-            if(!hand.HasBust()) return false;
-        }
-        return true;
-    }
-
-    void Player::SplitHand(int hand_index){
-        Card card = this->hands.at(hand_index).Split();
-        Hand hand; hand.AddCard(card);
-        this->AddHand(hand);
-    }
-
-    // ===== DEALER =====
+    // ===== Dealer =====
     Dealer::Dealer(){}
 
+    void Dealer::AddCard(Card card){
+        this->hands.at(0).AddCard(card);
+    }
+
     Card Dealer::GetFirstCard(){
-        return this->hands.front().GetCards().front();
+        return this->hands.at(0).GetCards().at(0);
     }
 
     std::string Dealer::GetFirstCardString(){
         std::stringstream ss;
         Card card = this->GetFirstCard();
-        if(card.rank != "A"){
-            ss << RANK_TO_NUMBER.at(card.rank);
-        } else {
-            ss << "A";
-        }
+        if( card.rank == "K"|| card.rank == "Q" || card.rank == "J") ss << "10";
+        else ss << card.rank;
         return ss.str();
     }
 
-    int Dealer::GetPoints(){
-        int soft = this->hands.at(0).GetSoftPoints();
-        int hard = this->hands.at(0).GetHardPoints();
-        if(soft > hard) return soft;
-        return hard;
+    bool Dealer::HasReached17(){
+        Hand hand = this->hands.at(0);
+        if(hand.HasAces()) return hand.GetSoftPoints() >= 17;
+        return hand.GetHardPoints() >= 17;
     }
 
-    bool Dealer::HasBust() {
-        return this->hands.front().HasBust(); 
+    bool Dealer::HasBust(){
+        Hand hand = this->hands.at(0);
+        return hand.GetHardPoints() > 21;
+    }
+
+    std::vector<Card> Dealer::Clear(){
+        return this->hands.at(0).ClearHand();
     }
 }
