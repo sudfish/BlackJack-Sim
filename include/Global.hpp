@@ -35,7 +35,6 @@ const std::map<std::string, int> RANK_TO_NUMBER = {
     {"A", 1}
 };
 
-
 const std::map<std::string, int> INSTRUCTION_TO_NUMBER = {
     {"H", 1},
     {"S", 2},

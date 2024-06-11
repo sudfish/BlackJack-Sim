@@ -2,12 +2,10 @@
 #include "Global.hpp"
 #include "Participant.hpp"
 #include <algorithm>
-#include <chrono>
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <thread>
 #include <utility>
 #include <vector>
 
@@ -28,7 +26,6 @@ namespace blackjack_sim {
             this->HandleDealerTurn();
             this->DetermineWinner();
             this->Reset();
-            // std::this_thread::sleep_for(std::chrono::milliseconds(5));
         }
     }
 
