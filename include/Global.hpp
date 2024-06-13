@@ -5,10 +5,18 @@
 #include <utility>
 #include <vector>
 
-const int NUMBER_OF_DECKS = 6;
-const bool DOUBLE_ALLOWED = false;
-const bool DOUBLE_AFTER_SPLIT_ALLOWED = false;
-const bool SURRENDER_ALLOWED = false;
+
+const int GAME_COUNT = 1000000;
+
+const long long PLAYER_BANKROLL_IN_CENTS = 100000000;
+const long long PLAYER_BET_IN_CENTS = 5000;
+
+const int NUMBER_OF_DECKS = 8;
+const float DECK_SHUFFLE_THRESHOLD_PERCENTAGE = 25.0f;
+
+const bool DOUBLE_ALLOWED = true;
+const bool DOUBLE_AFTER_SPLIT_ALLOWED = true;
+const bool SURRENDER_ALLOWED = true;
 
 const std::vector<std::string> SUITS = {
     "Hearts", "Diamonds", "Clubs", "Spades"

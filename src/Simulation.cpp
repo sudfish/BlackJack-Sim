@@ -1,22 +1,29 @@
 #include "Simulation.hpp"
 #include "Global.hpp"
 #include "Participant.hpp"
+#include <chrono>
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
+#include <random>
 #include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
 
 namespace blackjack_sim {
-    Simulation::Simulation(){}
+    Simulation::Simulation()
+        : hands(0), game(0), win(0), loss(0), push(0), surrender(0) {
+        }
 
     void Simulation::Run(){
-        system("clear");
-        while(true){
-            this->game_count++;
-            if(this->deck.GetCards().size() < 26){
+        // system("clear");
+        while(this->game < GAME_COUNT){
+            if(this->game % 50000 == 0) std::cout << this->PrintGameStats();
+            this->game++;
+            if(this->deck.GetDealtPercentage() < DECK_SHUFFLE_THRESHOLD_PERCENTAGE){
+                unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+                std::shuffle(this->bin.begin(), this->bin.end(), std::default_random_engine(seed));
                 this->deck.PutCards(this->bin);
                 this->bin.clear();
                 this->deck.Shuffle();
@@ -41,7 +48,8 @@ namespace blackjack_sim {
     void Simulation::HandlePlayerTurn(){
         std::string dealer_first = this->dealer.GetFirstCardString();
         for (int i=0; i<this->player.GetHands().size(); i++) {
-            this->player_hands++;
+            this->player.PlaceBet(i, this->bank);
+            this->hands++;
             while(!this->player.HasBust(i)){
                 std::string hand_string = this->player.GetHandString(i);
                 std::string instruction = DEALER_STANDS_ON_SOFT_17.at(std::make_pair(hand_string, dealer_first));
@@ -52,17 +60,32 @@ namespace blackjack_sim {
                         this->player.AddCard(i, this->deck.DrawCard());
                         break;
                     case 3:     // Split
-                        this->player.Split(i);
+                        if(this->player.GetHands().size() <= 4){
+                            this->player.Split(i);
+                        } else choice = 2;
                         break;
                     case 4:     // Double
+                        if(this->player.GetHands().size() == 1){
+                            this->player.PlaceBet(i, this->bank);
+                            this->player.AddCard(i, this->deck.DrawCard());
+                            choice = 2;
+                        } else {
+                            this->player.AddCard(i, this->deck.DrawCard());
+                        }
                         break;
                     case 5:     // Surrender
+                        if(this->player.GetHands().size()==1){
+                            this->player.Surrender(i);
+                            choice = 2;
+                        } else {
+                            this->player.AddCard(i, this->deck.DrawCard());
+                        }
                         break;
                     default:
                         break;
                 }
 
-                if(choice == 2) break;
+                if(choice == 2) break;  // Stand
             }
         }
     }
@@ -80,10 +103,15 @@ namespace blackjack_sim {
         int dealer_points = std::max(dealer_soft, dealer_hard);
         bool dealer_busted = this->dealer.HasBust();
         for(int i=0; i<this->player.GetHands().size(); i++){
-            if (this->player.HasBust(i)) {
-                this->loss_count++;
+            if(this->player.GetHands().at(i).IsSurrendered()){
+                this->surrender++;
+                this->player.bankroll += this->bank[i] / 2.3;
+            }
+            else if (this->player.HasBust(i)) {
+                this->loss++;
             } else if (dealer_busted){
-                this->win_count++;
+                this->win++;
+                this->player.bankroll += this->bank[i] * 2;
             } else {
                 int player_soft = this->player.GetHands().at(i).GetSoftPoints();
                 int player_hard = this->player.GetHands().at(i).GetHardPoints();
@@ -91,21 +119,18 @@ namespace blackjack_sim {
                 int player_points = std::max(player_soft, player_hard);
 
                 if(player_points > dealer_points){
-                    this->win_count++;
+                    this->win++;
+                    this->player.bankroll += this->bank[i] * 2;
                 } 
                 else if(dealer_points > player_points){
-                    this->loss_count++;
+                    this->loss++;
                 } 
                 else{
-                    this->push_count++;
+                    this->push++;
+                    this->player.bankroll += this->bank[i];
                 } 
             }
         }
-        std::cout << "Games: " << this->game_count 
-            << "\tPlayer Hands: " << this->player_hands
-            << "\tWon: " << this->win_count 
-            << "\tLost: " << this->loss_count 
-            << "\tPush: " << this->push_count << "\n";
     }
 
     void Simulation::Reset(){
@@ -113,6 +138,10 @@ namespace blackjack_sim {
         std::vector<Card> dealer_cards = this->dealer.Clear();
         this->bin.insert(this->bin.end(), player_cards.begin(), player_cards.end());
         this->bin.insert(this->bin.end(), dealer_cards.begin(), dealer_cards.end());
+        this->bank[0] = 0;
+        this->bank[1] = 0;
+        this->bank[2] = 0;
+        this->bank[3] = 0;
     }
 
     std::string Simulation::PrintHand(Hand hand){
@@ -121,6 +150,19 @@ namespace blackjack_sim {
             if(i+1 == hand.GetCards().size()) ss << hand.GetCards().at(i).rank;
             else ss << hand.GetCards().at(i).rank << ",";
         }
+        return ss.str();
+    }
+    
+    std::string Simulation::PrintGameStats(){
+       std::stringstream ss;
+       ss << "Game #" << this->game 
+           << "\tPlayer Hands: " << this->hands
+           << "\tWon: " << this->win 
+           << "\tLost: " << this->loss 
+           << "\tPush: " << this->push
+           << "\tSurrendered: " << this->surrender
+           << "\tBankroll: " << this->player.GetBankroll() 
+           << "\n";
         return ss.str();
     }
 }

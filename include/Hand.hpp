@@ -15,10 +15,14 @@ namespace blackjack_sim {
             bool IsPair();
             std::vector<Card> GetCards();
             std::vector<Card> ClearHand();
+            bool IsSurrendered();
+            void Surrender();
 
         private:
             std::vector<Card> cards;
             std::pair<int, int> points = std::make_pair(0, 0);
+
+            bool surrendered = false;
 
             void CalculatePoints();
             void CalculateSoftPoints();

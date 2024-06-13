@@ -2,6 +2,8 @@
 
 #include "Deck.hpp"
 #include "Participant.hpp"
+#include <map>
+#include <string>
 #include <vector>
 
 namespace blackjack_sim {
@@ -11,11 +13,10 @@ namespace blackjack_sim {
 
             void Run();
         private:
-            int game_count = 0;
-            int win_count = 0; 
-            int loss_count = 0; 
-            int push_count = 0; 
-            int player_hands = 0;
+            std::map<int, long long> bank;
+            int hands;
+            int game, win, loss, push, surrender;
+
             Deck deck;
             std::vector<Card> bin;
             Player player;
@@ -28,5 +29,6 @@ namespace blackjack_sim {
             void Reset();
 
             std::string PrintHand(Hand hand);
+            std::string PrintGameStats();
     };
 }

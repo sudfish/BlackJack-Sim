@@ -53,6 +53,13 @@ namespace blackjack_sim {
         this->points.second = 0;
         return vec;
     }
+    bool Hand::IsSurrendered(){
+        return this->surrendered;
+    }
+
+    void Hand::Surrender(){
+        this->surrendered = true; 
+    }
 
     void Hand::CalculatePoints(){
         if(this->HasAces()) this->CalculateSoftPoints();

@@ -13,6 +13,7 @@ namespace blackjack_sim {
             std::vector<Card> GetCards();
             void PutCards(std::vector<Card> cards);
             void Shuffle();
+            float GetDealtPercentage();
 
         private:
             std::vector<Card> cards;

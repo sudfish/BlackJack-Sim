@@ -1,5 +1,6 @@
 #include "Participant.hpp"
 #include "Global.hpp"
+#include <map>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -31,9 +32,24 @@ namespace blackjack_sim {
         }
     }
 
+    void Player::PlaceBet(int index, std::map<int, long long> &bank){
+        this->bankroll -= PLAYER_BET_IN_CENTS;
+        bank[index] += PLAYER_BET_IN_CENTS;
+    }
+
+    std::string Player::GetBankroll(){
+        std::stringstream ss;
+        ss << "$" << this->bankroll / 100 << "." << this->bankroll % 100;
+        return ss.str();
+    }
+
     bool Player::HasBust(int index){
         Hand hand = this->hands.at(index);
         return hand.GetHardPoints() > 21;
+    }
+
+    void Player::Surrender(int index){
+        this->hands.at(index).Surrender();
     }
 
     std::string Player::GetHandString(int index){
@@ -41,27 +57,25 @@ namespace blackjack_sim {
         std::stringstream ss;
         if(hand.IsPair()){
             Card card = hand.GetCards().at(0);
-            if(card.rank == "A") ss << "A,A";
-            else if (
-                    card.rank == "10" ||
-                    card.rank == "K" ||
-                    card.rank == "Q" ||
-                    card.rank == "J"
-                    ){
+            std::string rank = card.rank;
+            if(rank == "A") ss << "A,A";
+            else if (rank == "10" || rank == "K" || rank == "Q" || rank == "J") {
                 ss << "HARD 20";
-            }
-            else ss << card.rank << "," << card.rank;
-            
-            if(ss.str() == "5,5"){
-                ss.str("");
-                ss.clear();
+            } else if (rank == "5"){
                 ss << "HARD 10";
             }
+            else ss << card.rank << "," << card.rank;
+
         } else if (!hand.HasAces() && hand.GetHardPoints() <= 21){
             ss << "HARD " << hand.GetHardPoints();
-        } else if (hand.GetSoftPoints() <= 21 || hand.GetHardPoints() <= 21) {
-            if(hand.GetSoftPoints() <= 21) ss << "SOFT " << hand.GetSoftPoints();
-            else ss << "HARD " << hand.GetHardPoints();
+        } else {
+            int softPoints = hand.GetSoftPoints();
+            int hardPoints = hand.GetHardPoints();
+            if (softPoints <= 21) {
+                ss << "SOFT " << softPoints;
+            } else if (hardPoints <= 21) {
+                ss << "HARD " << hardPoints;
+            }
         } 
 
         return ss.str();
@@ -93,8 +107,9 @@ namespace blackjack_sim {
     std::string Dealer::GetFirstCardString(){
         std::stringstream ss;
         Card card = this->GetFirstCard();
-        if( card.rank == "K"|| card.rank == "Q" || card.rank == "J") ss << "10";
-        else ss << card.rank;
+        std::string rank = card.rank;
+        if(rank == "K"|| rank == "Q" || rank == "J") ss << "10";
+        else ss << rank;
         return ss.str();
     }
 
