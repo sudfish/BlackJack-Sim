@@ -3,7 +3,9 @@
 Program designed to simulate a large number of blackjack games executing
 perfect basic strategy. Provides users with insight of how well basic strategy 
 works in the long run and how several rules can change your odds at the 
-blackjack table. For example, in a blackjack table with 8 decks that get 
+blackjack table. 
+
+For example, in a blackjack table with 8 decks that get 
 reshuffled once 70% of the cards have been dealt, where doubling is allowed, 
 doubling after splitting is allowed, surrendering is allowed, with a bankroll
 of $1,000,000 and bets of $50, after 1,000,000 games the bankroll decreases to
